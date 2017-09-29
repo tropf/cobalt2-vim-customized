@@ -214,6 +214,12 @@ endfun
 
 " sets the highlighting for the given group
 fun! s:X(group, fg, bg, attr, lcfg, lcbg)
+  if a:attr == ""
+      let l:attrstr = "NONE"
+  else
+      let l:attrstr = a:attr
+  endif
+
   if s:low_color
     let l:fge = empty(a:lcfg)
     let l:bge = empty(a:lcbg)
@@ -230,22 +236,18 @@ fun! s:X(group, fg, bg, attr, lcfg, lcbg)
     let l:bge = empty(a:bg)
 
     if !l:fge && !l:bge
-      exec "hi ".a:group." guifg=#".a:fg." guibg=#".a:bg." ctermfg=".s:rgb(a:fg)." ctermbg=".s:rgb(a:bg)
+      exec "hi ".a:group." guifg=#".a:fg." guibg=#".a:bg." ctermfg=".s:rgb(a:fg)." ctermbg=".s:rgb(a:bg)." cterm=".l:attrstr
     elseif !l:fge && l:bge
-      exec "hi ".a:group." guifg=#".a:fg." guibg=NONE ctermfg=".s:rgb(a:fg)." ctermbg=NONE"
+      exec "hi ".a:group." guifg=#".a:fg." guibg=NONE ctermfg=".s:rgb(a:fg)." ctermbg=NONE"." cterm=".l:attrstr
     elseif l:fge && !l:bge
-      exec "hi ".a:group." guifg=NONE guibg=#".a:bg." ctermfg=NONE ctermbg=".s:rgb(a:bg)
+      exec "hi ".a:group." guifg=NONE guibg=#".a:bg." ctermfg=NONE ctermbg=".s:rgb(a:bg)." cterm=".l:attrstr
     endif
   endif
 
   if a:attr == ""
     exec "hi ".a:group." gui=none cterm=none"
   else
-    let l:noitalic = join(filter(split(a:attr, ","), "v:val !=? 'italic'"), ",")
-    if empty(l:noitalic)
-      let l:noitalic = "none"
-    endif
-    exec "hi ".a:group." gui=".a:attr." cterm=".l:noitalic
+    exec "hi ".a:group." gui=".a:attr." cterm=".a:attr
   endif
 endfun
 
@@ -313,7 +315,7 @@ set background=dark
 
 call s:X("Normal",g:white,g:cobalt_bg,"","","")
 call s:X("Comment",g:dark_blue,"","italic","Grey","")
-call s:X("Todo",g:dark_blue,"","bold","Grey", "")
+call s:X("Todo",g:dark_blue,g:light_yellow,"bold","Grey", "")
 call s:X("Constant",g:dark_pink,"","","Red","")
 call s:X("Special",g:light_green,"","","Green","")
 call s:X("MoreMsg",g:light_green,"","","Green","")
@@ -533,14 +535,14 @@ call s:X("hamlAttributes",g:pink,"","","","")
 call s:X("hamlInterpolationDelimiter",g:green,"","","","")
 
 " Markdown
-call s:X("markdownH1",g:yellow,"","","","")
+call s:X("markdownH1",g:yellow,g:black,"","","")
 hi! link markdownH2 markdownH1
 hi! link markdownH3 markdownH1
 hi! link markdownH4 markdownH1
 hi! link markdownH5 markdownH1
 hi! link markdownH6 markdownH1
 call s:X("markdownHeadingRule",g:dark_orange,"","","","")
-hi! link markdownHeadingDelimiter markdownHeadingRule
+call s:X("markdownHeadingDelimiter",g:white,"","","","")
 
 call s:X("markdownRule",g:light_blue,"","","","")
 
@@ -553,6 +555,19 @@ call s:X("markdownUrl",g:dark_pink,"","","","")
 
 call s:X("markdownId",g:yellow,"","","","")
 hi! link markdownIdDeclaration markdownId
+
+call s:X("markdownBold",g:pink,"","bold","","")
+call s:X("markdownBoldDelimiter",g:white,"","","","")
+call s:X("markdownItalic",g:lighter_green,"","italic","","")
+call s:X("markdownItalicDelimiter",g:white,"","","","")
+call s:X("markdownBoldItalic",g:dirty_green,"","bold,italic","","")
+call s:X("markdownBoldItalicDelimiter",g:white,"","","","")
+
+hi! link markdownEscape Special
+hi! link markdownError Error
+
+call s:X("markdownListMarker",g:dark_orange,"","bold","","")
+call s:X("markdownBlockquote","",g:darker_blue,"","","")
 
 " CSS
 call s:X("cssIdentifier",g:yellow,"","","","")
